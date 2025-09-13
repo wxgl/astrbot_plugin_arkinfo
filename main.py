@@ -1,24 +1,82 @@
-from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
+from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
+import asyncio
+import sys
+import os
 
-@register("helloworld", "YourName", "一个简单的 Hello World 插件", "1.0.0")
-class MyPlugin(Star):
+# 添加当前插件目录到sys.path，确保可以导入同目录下的模块
+plugin_dir = os.path.dirname(__file__)
+if plugin_dir not in sys.path:
+    sys.path.insert(0, plugin_dir)
+
+# 引用你原来的模块（请确保这些模块位于插件目录，或在 sys.path 中可导入）
+import ganyuan_info
+import qita_info
+
+
+@register("ark_info_search", "wxgl", "干员信息/道具查询插件", "0.1.0", "https://github.com/wxgl/ark_info_search")
+class ArkInfoPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
+        self.ctx = context
+        logger.info("ArkInfoPlugin 已初始化")
 
-    async def initialize(self):
-        """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
-    
-    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 `/helloworld` 就会触发这个指令，并回复 `你好, {user_name}!`
-    @filter.command("helloworld")
-    async def helloworld(self, event: AstrMessageEvent):
-        """这是一个 hello world 指令""" # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
-        user_name = event.get_sender_name()
-        message_str = event.message_str # 用户发的纯文本消息字符串
-        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
-        logger.info(message_chain)
-        yield event.plain_result(f"Hello, {user_name}, 你发了 {message_str}!") # 发送一条纯文本消息
+    @filter.command("arkhelp")
+    async def arkhelp(self, event: AstrMessageEvent):
+        """帮助指令：/arkhelp 显示可用命令"""
+        help_text = (
+            "可用指令："
+            "/arkgy <干员名> - 查询干员信息（例如：/arkgy 娜仁图亚）"
+            "/arkqt <物品名> - 查询信物/道具信息（例如：/arkqt 娜仁图亚的信物）"
+            "/arkhelp - 显示此帮助"
+            )
+        yield event.plain_result(help_text)
+
+    @filter.command("arkgy")
+    async def ganyuan(self, event: AstrMessageEvent, name: str):
+        """查询干员信息：/arkgy 娜仁图亚"""
+        try:
+            # ganyuan_info.main 可能是同步函数，使用线程池调用以避免阻塞事件循环
+            result = await asyncio.to_thread(ganyuan_info.main, name)
+            if not result:
+                yield event.plain_result(f"未找到干员：{name}")
+                return
+            name_out, zhi_ye, fen_zhi, xing_ji, te_xing, te_xing_b = result
+            text = (
+                f"干员：{name_out}\n"
+                f"职业：{zhi_ye}\n"
+                f"分支：{fen_zhi}\n"
+                f"星级：{xing_ji}\n"
+                f"特性：{te_xing}\n"
+                f"特性备注：{te_xing_b}"
+            )
+            yield event.plain_result(text)
+        except Exception as e:
+            logger.exception("查询干员信息出错")
+            yield event.plain_result(f"查询干员信息时发生错误：{e}")
+
+    @filter.command("arkqt")
+    async def qita(self, event: AstrMessageEvent, name: str):
+        """查询其他信息（信物等）：/arkqt 娜仁图亚的信物"""
+        try:
+            result = await asyncio.to_thread(qita_info.main, name)
+            if not result:
+                yield event.plain_result(f"未找到条目：{name}")
+                return
+            qita_name, miao_shu, yong_tu, huode_fangshi, fen_lei = result
+            text = (
+                f"名称：{qita_name}\n"
+                f"介绍：{miao_shu}\n"
+                f"用途：{yong_tu}\n"
+                f"获得方式：{huode_fangshi}\n"
+                f"分类：{fen_lei}"
+            )
+            yield event.plain_result(text)
+        except Exception as e:
+            logger.exception("查询其他信息出错")
+            yield event.plain_result(f"查询条目信息时发生错误：{e}")
 
     async def terminate(self):
-        """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
+        """插件被卸载/停用时会调用"""
+        logger.info("ArkInfoPlugin 被终止")

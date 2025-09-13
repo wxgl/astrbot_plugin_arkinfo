@@ -1,7 +1,6 @@
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-import asyncio
 import sys
 import os
 
@@ -26,19 +25,19 @@ class ArkInfoPlugin(Star):
     async def arkhelp(self, event: AstrMessageEvent):
         """帮助指令：/arkhelp 显示可用命令"""
         help_text = (
-            "可用指令："
-            "/arkgy <干员名> - 查询干员信息（例如：/arkgy 娜仁图亚）"
-            "/arkqt <物品名> - 查询信物/道具信息（例如：/arkqt 娜仁图亚的信物）"
+            "可用指令：\n"
+            "/arkgy <干员名> - 查询干员信息（例如：/arkgy 娜仁图亚）\n"
+            "/arkqt <物品名> - 查询信物/道具信息（例如：/arkqt 娜仁图亚的信物）\n"
             "/arkhelp - 显示此帮助"
-            )
+        )
         yield event.plain_result(help_text)
 
     @filter.command("arkgy")
     async def ganyuan(self, event: AstrMessageEvent, name: str):
         """查询干员信息：/arkgy 娜仁图亚"""
         try:
-            # ganyuan_info.main 可能是同步函数，使用线程池调用以避免阻塞事件循环
-            result = await asyncio.to_thread(ganyuan_info.main, name)
+            # 直接异步调用，不再需要线程池
+            result = await ganyuan_info.main(name)
             if not result:
                 yield event.plain_result(f"未找到干员：{name}")
                 return
@@ -60,7 +59,8 @@ class ArkInfoPlugin(Star):
     async def qita(self, event: AstrMessageEvent, name: str):
         """查询其他信息（信物等）：/arkqt 娜仁图亚的信物"""
         try:
-            result = await asyncio.to_thread(qita_info.main, name)
+            # 直接异步调用
+            result = await qita_info.main(name)
             if not result:
                 yield event.plain_result(f"未找到条目：{name}")
                 return

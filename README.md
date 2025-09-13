@@ -1,8 +1,6 @@
-# helloworld
+# ark_info_search
 
-AstrBot 插件模板
-
-A template plugin for AstrBot plugin feature
+使用官方PRTS WIKI的Media API开发，获取PRTS的信息，目前仍处于开发阶段
 
 # 支持
 

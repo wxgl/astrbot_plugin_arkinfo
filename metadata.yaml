@@ -1,0 +1,5 @@
+name: ark_info_search # 这是你的插件的唯一识别名。
+desc: 使用明日方舟PRTS的Media API获取信息。 # 插件简短描述
+version: v0.5 # 插件版本号。格式：v1.1.1 或者 v1.1
+author: wxgl # 作者
+repo: https://github.com/wxgl/astrbot_plugin_arkinfo # 插件的仓库地址

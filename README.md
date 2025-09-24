@@ -1,6 +1,6 @@
 # ark_info_search
 
-官方PRTS WIKI的Media API开发，获取PRTS的信息
+基于官方PRTS WIKI的Media API开发，获取PRTS的信息
 大体架构已经完成
 
 ## 含有图片的信息加载会稍慢

@@ -15,6 +15,7 @@ OperatorInfo = namedtuple('OperatorInfo',
 "te_xing": "特性",
 "te_xing_b": "特性备注",
 "wikitext": "wikitext"
+
 """
 
 # 预编译正则表达式以提高性能

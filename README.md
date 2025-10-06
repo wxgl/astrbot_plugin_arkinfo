@@ -1,5 +1,5 @@
 # ark_info_search
-
+基于作者的项目改版
 本人为高中生，编写代码的时间并不多，一部分使用AI辅助完成。
 个人获取明日方舟 PRTS WIKI 信息的尝试，使用原生的 Media API 调用，目的给astrbot添加明日方舟信息查询功能
 
@@ -22,7 +22,7 @@
 | `__main__.py`          | 主程序(使用的是相对导入)              |
 | `gongzhao.py`          | 公招信息查询模块                   |
 | `stage_enemy.py`       | 关卡怪物数值查询模块                 |
-| `data/enemy_data.json` | 怪物名字存储                       |
+| `data/enemy_data.json` | 怪物名字存储                     |
 
 ## 依赖项
 
